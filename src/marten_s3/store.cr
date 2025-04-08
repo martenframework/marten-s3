@@ -9,7 +9,7 @@ module MartenS3
       @bucket : String,
       @endpoint : String? = nil,
       @force_path_style : Bool = false,
-      @expires_in = 86_400
+      @expires_in = 86_400,
     )
       @client = Awscr::S3::Client.new(
         @region,
