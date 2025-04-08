@@ -1,0 +1,16 @@
+name: marten_s3
+version: 0.1.0
+
+dependencies:
+  marten:
+    github: martenframework/marten
+  awscr-s3:
+    github: taylorfinnell/awscr-s3
+    branch: master # TODO: Remove when v0.9 is out
+
+development_dependencies:
+  sqlite3:
+    github: crystal-lang/crystal-sqlite3
+  ameba:
+    github: crystal-ameba/ameba
+    branch: master
