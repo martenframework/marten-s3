@@ -31,6 +31,7 @@ config.installed_apps = [
   # …
   MartenS3::App
 ]
+```
 
 Finally you can configure the storage
 
