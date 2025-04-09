@@ -1,0 +1,58 @@
+name: Specs
+
+on:
+  push:
+    branches: "*"
+  pull_request:
+    branches: "*"
+  schedule:
+    - cron: '0 0 * * *' # Daily at midnight UTC
+
+jobs:
+  specs:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        crystal: [
+          '1.14.1',
+          '1.15.1',
+          'nightly',
+        ]
+    container:
+      image: crystallang/crystal:${{ matrix.crystal }}
+    services:
+      minio:
+        image: bitnami/minio:latest
+        env:
+          MINIO_ROOT_USER: admin
+          MINIO_ROOT_PASSWORD: password
+        ports:
+          - 9000:9000
+        options: >-
+          --health-cmd "curl -s http://localhost:9000/minio/health/live"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+          --name minio-server
+    steps:
+      - name: "[Git] Checkout code"
+        uses: actions/checkout@v4.2.2
+
+      - name: Install required packages
+        run: |
+          apt-get update
+          apt-get -yqq install libsqlite3-dev curl
+
+      - name: Install shards
+        run: shards install --ignore-crystal-version
+
+      - name: Cache Crystal
+        uses: actions/cache@v4.2.3
+        with:
+          path: ~/.cache/crystal
+          key: ${{ runner.os }}-crystal-${{ matrix.crystal }}
+      - name: Run specs
+        env:
+          S3_ENDPOINT: http://minio:9000
+        run: crystal spec -v --error-trace --no-color
