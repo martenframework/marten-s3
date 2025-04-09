@@ -19,6 +19,11 @@ module MartenS3
       )
     end
 
+    def save(filepath : String, content : IO) : String
+      normalized_path = Path.new(filepath).normalize
+      super(normalized_path.to_s, content)
+    end
+
     def write(filepath : String, content : IO) : Nil
       @client.put_object(
         @bucket,
@@ -28,9 +33,12 @@ module MartenS3
     end
 
     def delete(filepath : String) : Nil
+      @client.head_object(@bucket, filepath)
       @client.delete_object(@bucket, filepath)
-    rescue Awscr::S3::NoSuchKey
-      raise Marten::Core::Storage::Errors::FileNotFound.new("File '#{filepath}' not found in S3")
+    rescue
+      raise Marten::Core::Storage::Errors::FileNotFound.new(
+        "File '#{filepath}' not found in #{@bucket}"
+      )
     end
 
     def open(filepath : String) : IO
