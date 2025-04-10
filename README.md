@@ -1,8 +1,8 @@
 # Marten S3
 
-[![GitHub Release](https://img.shields.io/github/v/release/treagod/marten-s3?style=flat)](https://github.com/treagod/marten-s3/releases)
-[![Marten Turbo Specs](https://github.com/treagod/marten-s3/actions/workflows/specs.yml/badge.svg)](https://github.com/treagod/marten-s3/actions/workflows/specs.yml)
-[![QA](https://github.com/treagod/marten-s3/actions/workflows/qa.yml/badge.svg)](https://github.com/treagod/marten-s3/actions/workflows/qa.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/martenframework/marten-s3?style=flat)](https://github.com/martenframework/marten-s3/releases)
+[![Marten Turbo Specs](https://github.com/martenframework/marten-s3/actions/workflows/specs.yml/badge.svg)](https://github.com/martenframework/marten-s3/actions/workflows/specs.yml)
+[![QA](https://github.com/martenframework/marten-s3/actions/workflows/qa.yml/badge.svg)](https://github.com/martenframework/marten-s3/actions/workflows/qa.yml)
 
 Marten S3 provides a file store implementation to interact with S3 storages
 
@@ -13,7 +13,7 @@ Simply add the following entry to your project's `shard.yml`:
 ```yaml
 dependencies:
   marten_s3:
-    github: treagod/marten-s3
+    github: martenframework/marten-s3
 ```
 
 And run `shards install` afterward.
