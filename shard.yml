@@ -6,7 +6,7 @@ dependencies:
     github: martenframework/marten
   awscr-s3:
     github: taylorfinnell/awscr-s3
-    branch: master # TODO: Remove when v0.9 is out
+    version: ~> 0.9.0
 
 development_dependencies:
   sqlite3:
