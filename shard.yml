@@ -6,7 +6,7 @@ dependencies:
     github: martenframework/marten
   awscr-s3:
     github: taylorfinnell/awscr-s3
-    version: ~> 0.9.0
+    branch: master # TODO: Change to next version after endpoint is added
 
 development_dependencies:
   sqlite3:

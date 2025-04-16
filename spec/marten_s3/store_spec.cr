@@ -149,9 +149,61 @@ describe MartenS3::Store do
     end
 
     describe "#url" do
-      it "returns a URL constructed from the base URL" do
-        storage.url("css/app.css").should contain "awscr-s3-test-"
-        storage.url("css/app.css").should contain "css/app.css"
+      it "returns a private URL constructed from the base URL" do
+        uri = URI.parse(storage.url("css/app.css"))
+
+        uri.host.should eq URI.parse(ENV.fetch("S3_ENDPOINT", "http://127.0.0.1:9000")).host
+
+        uri.path.should contain "#{bucket_name}/css/app.css"
+
+        query = uri.query.not_nil!
+
+        query_params = URI::Params.parse(query)
+        query_params.has_key?("X-Amz-Algorithm").should be_true
+        query_params.has_key?("X-Amz-Credential").should be_true
+        query_params.has_key?("X-Amz-Date").should be_true
+        query_params["X-Amz-Expires"].should eq "86400"
+        query_params.has_key?("X-Amz-SignedHeaders").should be_true
+        query_params.has_key?("X-Amz-Signature").should be_true
+      end
+
+      it "returns a path-style public URL when `use_public_url` is true and `force_path_style` is enabled" do
+        storage = MartenS3::Store.new(
+          region: "unused",
+          bucket: bucket_name,
+          access_key: ENV.fetch("S3_KEY", "admin"),
+          secret_key: ENV.fetch("S3_SECRET", "password"),
+          endpoint: ENV.fetch("S3_ENDPOINT", "http://127.0.0.1:9000"),
+          force_path_style: true,
+          use_public_url: true,
+        )
+        uri = URI.parse(storage.url("css/app.css"))
+
+        uri.host.should eq URI.parse(ENV.fetch("S3_ENDPOINT", "http://127.0.0.1:9000")).host
+
+        uri.path.should eq "/#{bucket_name}/css/app.css"
+
+        uri.query.should be_nil
+      end
+
+      it "returns a virtual-host–style public URL when `use_public_url` is true and `force_path_style` is disabled" do
+        storage = MartenS3::Store.new(
+          region: "unused",
+          bucket: bucket_name,
+          access_key: ENV.fetch("S3_KEY", "admin"),
+          secret_key: ENV.fetch("S3_SECRET", "password"),
+          endpoint: ENV.fetch("S3_ENDPOINT", "http://127.0.0.1:9000"),
+          use_public_url: true,
+        )
+        uri = URI.parse(storage.url("css/app.css"))
+
+        test_host = URI.parse(ENV.fetch("S3_ENDPOINT", "http://127.0.0.1:9000")).host
+
+        uri.host.should eq "#{bucket_name}.#{test_host}"
+
+        uri.path.should eq "/css/app.css"
+
+        uri.query.should be_nil
       end
     end
 
