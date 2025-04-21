@@ -83,11 +83,10 @@ module MartenS3
     end
 
     private def public_url(filepath)
+      uri = @client.endpoint.dup
       if @force_path_style
-        uri = @client.endpoint.dup
         uri.path = "/#{@bucket}/#{filepath}"
       else
-        uri = @client.endpoint.dup
         uri.host = "#{@bucket}.#{@client.endpoint.host}"
         uri.path = "/#{filepath}"
       end
