@@ -10,7 +10,7 @@ module MartenS3
       @endpoint : String? = nil,
       @force_path_style : Bool = false,
       @expires_in = 86_400,
-      @use_public_url : Bool = false,
+      @public_urls : Bool = false,
     )
       @client = Awscr::S3::Client.new(
         @region,
@@ -75,7 +75,7 @@ module MartenS3
     def url(filepath : String) : String
       filepath = URI.encode_path(filepath)
 
-      if @use_public_url
+      if @public_urls
         public_url(filepath)
       else
         generate_presigned_url(filepath)

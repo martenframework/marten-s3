@@ -167,7 +167,7 @@ describe MartenS3::Store do
         query_params.has_key?("X-Amz-Signature").should be_true
       end
 
-      it "returns a path-style public URL when `use_public_url` is true and `force_path_style` is enabled" do
+      it "returns a path-style public URL when `public_urls` is true and `force_path_style` is enabled" do
         storage = MartenS3::Store.new(
           region: "unused",
           bucket: bucket_name,
@@ -175,7 +175,7 @@ describe MartenS3::Store do
           secret_key: ENV.fetch("S3_SECRET", "password"),
           endpoint: ENV.fetch("S3_ENDPOINT", "http://127.0.0.1:9000"),
           force_path_style: true,
-          use_public_url: true,
+          public_urls: true,
         )
         uri = URI.parse(storage.url("css/app.css"))
 
@@ -186,14 +186,14 @@ describe MartenS3::Store do
         uri.query.should be_nil
       end
 
-      it "returns a virtual-host–style public URL when `use_public_url` is true and `force_path_style` is disabled" do
+      it "returns a virtual-host–style public URL when `public_urls` is true and `force_path_style` is disabled" do
         storage = MartenS3::Store.new(
           region: "unused",
           bucket: bucket_name,
           access_key: ENV.fetch("S3_KEY", "admin"),
           secret_key: ENV.fetch("S3_SECRET", "password"),
           endpoint: ENV.fetch("S3_ENDPOINT", "http://127.0.0.1:9000"),
-          use_public_url: true,
+          public_urls: true,
         )
         uri = URI.parse(storage.url("css/app.css"))
 
