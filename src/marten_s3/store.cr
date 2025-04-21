@@ -10,6 +10,7 @@ module MartenS3
       @endpoint : String? = nil,
       @force_path_style : Bool = false,
       @expires_in = 86_400,
+      @public_urls : Bool = false,
     )
       @client = Awscr::S3::Client.new(
         @region,
@@ -72,19 +73,33 @@ module MartenS3
     end
 
     def url(filepath : String) : String
-      generate_presigned_url(filepath)
+      filepath = URI.encode_path(filepath)
+
+      if @public_urls
+        public_url(filepath)
+      else
+        generate_presigned_url(filepath)
+      end
     end
 
     private def public_url(filepath)
-      File.join(@endpoint.not_nil!, @bucket, URI.encode_path(filepath))
+      uri = @client.endpoint.dup
+      if @force_path_style
+        uri.path = "/#{@bucket}/#{filepath}"
+      else
+        uri.host = "#{@bucket}.#{@client.endpoint.host}"
+        uri.path = "/#{filepath}"
+      end
+
+      uri.to_s
     end
 
     private def generate_presigned_url(filepath : String)
       options = Awscr::S3::Presigned::Url::Options.new(
         aws_access_key: @access_key,
         aws_secret_key: @secret_key,
-        region: @region,
-        endpoint: @endpoint,
+        region: @client.region,
+        endpoint: @client.endpoint.to_s,
         bucket: @bucket,
         force_path_style: @force_path_style,
         object: filepath,

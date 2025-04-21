@@ -6,8 +6,7 @@ dependencies:
     github: martenframework/marten
   awscr-s3:
     github: taylorfinnell/awscr-s3
-    version: ~> 0.9.0
-
+    version: ~> 0.10.0
 development_dependencies:
   sqlite3:
     github: crystal-lang/crystal-sqlite3
