@@ -18,6 +18,7 @@ module MartenS3
         @secret_key,
         endpoint: @endpoint
       )
+      @file_uploader = Awscr::S3::FileUploader.new(@client)
     end
 
     def save(filepath : String, content : IO) : String
@@ -26,7 +27,7 @@ module MartenS3
     end
 
     def write(filepath : String, content : IO) : Nil
-      @client.put_object(
+      @file_uploader.upload(
         @bucket,
         filepath,
         content
