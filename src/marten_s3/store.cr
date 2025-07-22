@@ -3,21 +3,33 @@ require "awscr-s3"
 module MartenS3
   class Store < Marten::Core::Storage::Base
     def initialize(
-      @region : String,
-      @access_key : String,
-      @secret_key : String,
+      @client : Awscr::S3::Client,
       @bucket : String,
-      @endpoint : String? = nil,
+      @force_path_style : Bool = false,
+      @expires_in = 86_400,
+      @public_urls : Bool = false,
+    )
+      @presigner = Awscr::S3::Presigner.new(@client)
+      @file_uploader = Awscr::S3::FileUploader.new(@client)
+    end
+
+    def initialize(
+      region : String,
+      access_key : String,
+      secret_key : String,
+      @bucket : String,
+      endpoint : String? = nil,
       @force_path_style : Bool = false,
       @expires_in = 86_400,
       @public_urls : Bool = false,
     )
       @client = Awscr::S3::Client.new(
-        @region,
-        @access_key,
-        @secret_key,
-        endpoint: @endpoint
+        region,
+        access_key,
+        secret_key,
+        endpoint: endpoint
       )
+      @presigner = Awscr::S3::Presigner.new(@client)
       @file_uploader = Awscr::S3::FileUploader.new(@client)
     end
 
@@ -96,18 +108,7 @@ module MartenS3
     end
 
     private def generate_presigned_url(filepath : String)
-      options = Awscr::S3::Presigned::Url::Options.new(
-        aws_access_key: @access_key,
-        aws_secret_key: @secret_key,
-        region: @client.region,
-        endpoint: @client.endpoint.to_s,
-        bucket: @bucket,
-        force_path_style: @force_path_style,
-        object: filepath,
-        expires: @expires_in
-      )
-
-      Awscr::S3::Presigned::Url.new(options).for(:get)
+      @presigner.presigned_url(@bucket, filepath, expires: @expires_in, force_path_style: @force_path_style)
     end
   end
 end

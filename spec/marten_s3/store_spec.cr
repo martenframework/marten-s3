@@ -72,6 +72,62 @@ describe MartenS3::Store do
     end
   end
 
+  describe ".new(client)" do
+    it "supports the full end-to-end read/write cycle with a supplied client" do
+      custom_client = Awscr::S3::Client.new(
+        region: "unused",
+        aws_access_key: ENV.fetch("S3_KEY", "admin"),
+        aws_secret_key: ENV.fetch("S3_SECRET", "password"),
+        endpoint: ENV.fetch("S3_ENDPOINT", "http://127.0.0.1:9000"),
+      )
+
+      custom_client.put_bucket(bucket_name) rescue nil
+
+      storage_with_client = MartenS3::Store.new(
+        custom_client,
+        bucket_name,
+        force_path_style: true,
+        expires_in: 60,
+      )
+
+      storage_with_client.write("images/logo.png", IO::Memory.new("logo-content"))
+      storage_with_client.exists?("images/logo.png").should be_true
+
+      storage_with_client.open("images/logo.png").gets.should eq "logo-content"
+
+      expected_size = "logo-content".bytesize.to_i64
+      storage_with_client.size("images/logo.png").should eq expected_size
+
+      uri = URI.parse(storage_with_client.url("images/logo.png"))
+      URI::Params.parse(uri.query.not_nil!)["X-Amz-Expires"].should eq "60"
+    end
+
+    it "generates public virtual-host style URLs when requested" do
+      custom_client = Awscr::S3::Client.new(
+        region: "unused",
+        aws_access_key: ENV.fetch("S3_KEY", "admin"),
+        aws_secret_key: ENV.fetch("S3_SECRET", "password"),
+      )
+      custom_client.put_bucket(bucket_name) rescue nil
+
+      storage_public = MartenS3::Store.new(
+        custom_client,
+        bucket_name,
+        public_urls: true,
+      )
+
+      url = storage_public.url("assets/app.js")
+      uri = URI.parse(url)
+
+      # Expected host: "#{bucket}.minio-host"
+      test_host = URI.parse("https://s3-unused.amazonaws.com").host
+      uri.host.should eq "#{bucket_name}.#{test_host}"
+
+      uri.path.should eq "/assets/app.js"
+      uri.query.should be_nil
+    end
+  end
+
   describe "#open" do
     it "returns an IO corresponding to the passed file path" do
       storage.write("css/app.css", IO::Memory.new("html { background: white; }"))
