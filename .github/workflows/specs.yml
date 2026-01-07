@@ -24,7 +24,7 @@ jobs:
       image: crystallang/crystal:${{ matrix.crystal }}
     services:
       minio:
-        image: bitnami/minio:latest
+        image: public.ecr.aws/bitnami/minio:latest
         env:
           MINIO_ROOT_USER: admin
           MINIO_ROOT_PASSWORD: password
