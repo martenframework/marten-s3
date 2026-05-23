@@ -20,4 +20,4 @@ jobs:
       - name: Run crystal format tool
         run: crystal tool format
       - name: Run ameba
-        run: bin/ameba
+        run: lib/ameba/bin/ameba.cr
