@@ -24,14 +24,14 @@ jobs:
       image: crystallang/crystal:${{ matrix.crystal }}
     services:
       minio:
-        image: public.ecr.aws/bitnami/minio:latest
+        image: quay.io/minio/minio:RELEASE.2025-09-06T17-38-46Z
         env:
           MINIO_ROOT_USER: admin
           MINIO_ROOT_PASSWORD: password
         ports:
           - 9000:9000
         options: >-
-          --health-cmd "curl -s http://localhost:9000/minio/health/live"
+          --health-cmd "mc ready local"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
