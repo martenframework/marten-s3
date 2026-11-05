@@ -24,7 +24,7 @@ jobs:
       image: crystallang/crystal:${{ matrix.crystal }}
     services:
       minio:
-        image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+        image: docker.io/pgsty/silo:RELEASE.2026-10-26T00-00-00Z
         command: server /data
         env:
           MINIO_ROOT_USER: admin
@@ -32,7 +32,7 @@ jobs:
         ports:
           - 9000:9000
         options: >-
-          --health-cmd "mc ready local"
+          --health-cmd "silo healthcheck ready"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
